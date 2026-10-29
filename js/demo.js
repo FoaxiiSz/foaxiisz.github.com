@@ -112,11 +112,14 @@ function mixIn(dst, src, at, gain) {
   for (let i = Math.max(0, start); i < end; i++) dst[i] += src[i - start] * gain;
 }
 
-export function makeDemoTrack(sr) {
-  const bpm = 92;
+// variant 'A': disco de batalha 92 BPM com intro de "ahh" para scratch
+// variant 'B': groove 96 BPM com outra levada e acordes (para treinar beatmatch)
+export function makeDemoTrack(sr, variant = 'A') {
+  const isB = variant === 'B';
+  const bpm = isB ? 96 : 92;
   const beat = 60 / bpm;
-  const intro = 8;
-  const bars = 16;
+  const intro = isB ? 0.5 : 8;
+  const bars = isB ? 24 : 16;
   const duration = intro + bars * 4 * beat + 2;
   const out = new Float32Array(Math.floor(sr * duration));
 
@@ -126,17 +129,19 @@ export function makeDemoTrack(sr) {
   const snare = makeSnare(sr);
   const hat = makeHat(sr, false);
   const ohat = makeHat(sr, true);
-  const stabA = makeStab(sr, [220, 261.6, 329.6], 0.6);
-  const stabB = makeStab(sr, [196, 246.9, 293.7], 0.6);
+  const stabA = isB ? makeStab(sr, [293.7, 349.2, 440], 0.6) : makeStab(sr, [220, 261.6, 329.6], 0.6);
+  const stabB = isB ? makeStab(sr, [261.6, 329.6, 392], 0.6) : makeStab(sr, [196, 246.9, 293.7], 0.6);
 
   // Seção de scratch: "ahh" isolado, como num disco de batalha
-  for (let k = 0; k < 4; k++) {
-    mixIn(out, k % 2 ? ahhLow : ahh, sr * (0.3 + k * 2), 0.9);
+  if (!isB) {
+    for (let k = 0; k < 4; k++) {
+      mixIn(out, k % 2 ? ahhLow : ahh, sr * (0.3 + k * 2), 0.9);
+    }
   }
 
   const step = beat / 4;
-  const kicks = [0, 7, 10];
-  const bassNotes = [55, 55, 49, 41.2];
+  const kicks = isB ? [0, 3, 8, 11] : [0, 7, 10];
+  const bassNotes = isB ? [73.4, 73.4, 65.4, 58.3] : [55, 55, 49, 41.2];
   for (let bar = 0; bar < bars; bar++) {
     const t0 = intro + bar * 4 * beat;
     for (let st = 0; st < 16; st++) {
@@ -146,8 +151,10 @@ export function makeDemoTrack(sr) {
       if (st % 2 === 0 && st !== 14) mixIn(out, hat, t, 1);
       if (st === 14) mixIn(out, ohat, t, 0.8);
     }
-    if (bar % 4 === 0) mixIn(out, ahh, t0 * sr, 0.55);
-    mixIn(out, bar % 2 ? stabB : stabA, (t0 + 6 * step) * sr, 1);
+    if (bar % 4 === 0 && !isB) mixIn(out, ahh, t0 * sr, 0.55);
+    if (isB && bar % 8 === 4) mixIn(out, ahhLow, (t0 + 8 * step) * sr, 0.5);
+    mixIn(out, bar % 2 ? stabB : stabA, (t0 + (isB ? 2 : 6) * step) * sr, 1);
+    if (isB) mixIn(out, bar % 2 ? stabB : stabA, (t0 + 10 * step) * sr, 0.7);
 
     // linha de baixo simples
     const f = bassNotes[bar % 4];
@@ -164,5 +171,5 @@ export function makeDemoTrack(sr) {
 
   // limitador suave
   for (let i = 0; i < out.length; i++) out[i] = Math.tanh(out[i] * 0.9);
-  return { L: out, R: out, duration: out.length / sr };
+  return { L: out, R: out, duration: out.length / sr, bpm };
 }

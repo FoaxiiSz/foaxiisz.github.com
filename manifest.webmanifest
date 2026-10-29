@@ -1,10 +1,10 @@
 {
-  "name": "Vinil MK2 — simulador de toca-discos",
+  "name": "Mesa Vinil MK2 — toca-discos e mixer",
   "short_name": "Vinil MK2",
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",
-  "orientation": "any",
+  "orientation": "landscape",
   "background_color": "#121314",
   "theme_color": "#121314",
   "icons": [

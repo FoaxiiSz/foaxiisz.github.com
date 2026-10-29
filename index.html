@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<title>Vinil MK2</title>
-<meta name="description" content="Simulador realista de toca-discos estilo SL-1200 MK2 com scratch, pitch e freio em tempo real.">
+<title>Mesa Vinil MK2</title>
+<meta name="description" content="Mesa de DJ no celular: dois toca-discos estilo SL-1200 MK2 com scratch e um mixer com Beat FX.">
 <meta name="theme-color" content="#121314">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -15,129 +15,93 @@
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <style>
   :root {
-    --bg: #121314;
+    --bg: #0e0f10;
     --panel: #1c1d1f;
     --panel-2: #26282b;
     --line: #34373b;
     --text: #e9e6df;
     --muted: #9a9890;
     --accent: #ff7a1a;
-    --led-green: #5dff8a;
-    --danger: #ff3b30;
+    --accent-b: #ffd21a;
     color-scheme: dark;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body {
     margin: 0; height: 100%; background: var(--bg); color: var(--text);
-    font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font: 13px/1.3 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     overscroll-behavior: none; overflow: hidden;
     -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
   }
   body {
     display: grid;
-    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-rows: auto minmax(0, 1fr);
     grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: "top" "stage" "bottom";
     height: 100dvh;
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
   header {
-    grid-area: top; display: flex; align-items: center; gap: 8px;
-    padding: 8px 12px; min-width: 0;
+    display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-areas: "a c b"; align-items: center; gap: 8px; padding: 4px 8px;
   }
-  .track { flex: 1; min-width: 0; }
-  .track b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 15px; }
-  .track small { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .side { min-width: 0; }
+  .side.a { grid-area: a; }
+  .side.b { grid-area: b; text-align: right; }
+  .side b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
+  .side small { display: block; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px; }
+  .side .tag { font-weight: 800; color: var(--accent); margin-right: 4px; }
+  .side.b .tag { color: var(--accent-b); margin: 0 0 0 4px; }
+  .center { grid-area: c; display: flex; gap: 6px; align-items: center; }
   .icon-btn {
-    flex: none; height: 40px; min-width: 40px; padding: 0 12px; border-radius: 10px;
+    flex: none; height: 32px; min-width: 32px; padding: 0 9px; border-radius: 8px;
     border: 1px solid var(--line); background: var(--panel); color: var(--text);
-    font: inherit; font-weight: 600; cursor: pointer;
+    font: inherit; font-weight: 700; cursor: pointer;
   }
-  .icon-btn.primary { background: var(--accent); border-color: var(--accent); color: #1a1006; }
-  #stage { grid-area: stage; position: relative; min-height: 0; }
+  .icon-btn.a { background: var(--accent); border-color: var(--accent); color: #1a1006; }
+  .icon-btn.b { background: var(--accent-b); border-color: var(--accent-b); color: #1a1406; }
+  .seg { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .seg button { border: 0; background: transparent; color: var(--muted); padding: 0 9px; height: 30px; font: inherit; font-weight: 600; }
+  .seg button.on { background: #3a3d42; color: #fff; }
+  #stage { position: relative; min-height: 0; }
   #deck { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; display: block; }
-  footer {
-    grid-area: bottom; display: flex; gap: 12px; align-items: center;
-    padding: 10px 12px 12px;
-  }
-  .pad {
-    flex: none; width: 76px; height: 64px; border-radius: 12px; border: 1px solid #444;
-    background: linear-gradient(#2b2d30, #1d1e20); color: var(--text); font-weight: 800; letter-spacing: 1px;
-    touch-action: none; box-shadow: inset 0 1px 0 #ffffff14, 0 2px 0 #000;
-  }
-  .pad.active { background: var(--danger); color: #fff; transform: translateY(1px); box-shadow: none; }
-  .xfader-wrap { flex: 1; min-width: 0; }
-  .xfader-wrap label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
-  .xfader {
-    position: relative; height: 44px; border-radius: 10px; background: #0b0b0c;
-    border: 1px solid var(--line); touch-action: none;
-  }
-  .xfader::before {
-    content: ""; position: absolute; left: 14px; right: 14px; top: 50%; height: 4px; margin-top: -2px;
-    background: #000; border-radius: 2px; box-shadow: 0 1px 0 #ffffff12;
-  }
-  .xfader .zone { position: absolute; top: 4px; bottom: 4px; right: 6px; width: 9%; border-radius: 6px; background: #ff3b3026; }
-  .xfader .cap {
-    position: absolute; top: 4px; bottom: 4px; width: 26px; margin-left: -13px; border-radius: 5px;
-    background: linear-gradient(90deg, #8d9094, #e8eaec 45%, #6f7276); box-shadow: 0 2px 4px #000a;
-  }
-  .xfader .cap::after { content: ""; position: absolute; left: 12px; top: 6px; bottom: 6px; width: 2px; background: #222; }
-  .vol { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; color: var(--muted); }
-  .vol input { width: 72px; accent-color: var(--accent); }
 
-  /* Paisagem baixa (celular deitado): controles na lateral */
-  @media (orientation: landscape) and (max-height: 560px) {
-    body {
-      grid-template-columns: minmax(0, 1fr) 210px;
-      grid-template-rows: auto minmax(0, 1fr);
-      grid-template-areas: "stage top" "stage bottom";
-    }
-    header { flex-wrap: wrap; align-content: flex-start; }
-    .track small { display: block; }
-    .track { flex-basis: 100%; }
-    footer { flex-direction: column; align-items: stretch; justify-content: flex-end; }
-    .pad { width: 100%; }
-    .vol { flex-direction: row; justify-content: space-between; }
-    .vol input { flex: 1; }
+  body.portrait header { grid-template-columns: 1fr 1fr; grid-template-areas: "c c" "a b"; }
+  body.portrait .center { justify-content: center; flex-wrap: wrap; }
+  #rotateHint {
+    position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); display: none;
+    padding: 12px 14px; border-radius: 12px; background: #1f2124ee; border: 1px solid var(--line); text-align: center;
   }
+  body.portrait #rotateHint:not(.dismissed) { display: block; }
 
-  /* Folhas (modais) */
   .sheet { position: fixed; inset: 0; display: none; z-index: 10; background: #000a; }
   .sheet.open { display: flex; align-items: flex-end; justify-content: center; }
   .sheet .card {
-    width: min(560px, 100%); max-height: 88dvh; overflow: auto; -webkit-user-select: text; user-select: text;
+    width: min(560px, 100%); max-height: 92dvh; overflow: auto; -webkit-user-select: text; user-select: text;
     background: var(--panel); border: 1px solid var(--line); border-radius: 18px 18px 0 0;
-    padding: 18px 18px calc(18px + env(safe-area-inset-bottom));
+    padding: 16px 18px calc(16px + env(safe-area-inset-bottom)); font-size: 14px; line-height: 1.4;
   }
-  @media (min-height: 700px) and (min-width: 600px) {
+  @media (min-height: 600px) and (min-width: 600px) {
     .sheet.open { align-items: center; }
     .sheet .card { border-radius: 18px; }
   }
   .card h2 { margin: 0 0 12px; font-size: 18px; }
-  .card h3 { margin: 18px 0 6px; font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .card h3 { margin: 16px 0 6px; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
   .card p, .card li { color: #cfccc4; }
   .card ul { padding-left: 18px; margin: 6px 0; }
   .option {
-    display: flex; gap: 12px; align-items: center; width: 100%; padding: 14px; margin-bottom: 8px;
+    display: flex; gap: 12px; align-items: center; width: 100%; padding: 12px; margin-bottom: 8px;
     border-radius: 12px; border: 1px solid var(--line); background: var(--panel-2); color: var(--text);
     font: inherit; text-align: left; cursor: pointer;
   }
   .option span { font-size: 24px; }
   .option small { display: block; color: var(--muted); }
-  .note {
-    border-left: 3px solid var(--accent); background: #ff7a1a12; padding: 10px 12px; border-radius: 6px; margin-top: 12px;
-  }
-  .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .note { border-left: 3px solid var(--accent); background: #ff7a1a12; padding: 10px 12px; border-radius: 6px; margin-top: 12px; }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); }
   .row label { flex: 1; }
-  .seg { display: flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
-  .seg button { border: 0; background: transparent; color: var(--muted); padding: 8px 12px; font: inherit; }
-  .seg button.on { background: var(--accent); color: #1a1006; font-weight: 700; }
+  .row .seg button { height: 34px; padding: 0 12px; }
+  .row .seg button.on { background: var(--accent); color: #1a1006; }
   .row input[type=range] { width: 140px; accent-color: var(--accent); }
-  .close { margin-top: 16px; width: 100%; }
-  #busy {
-    position: fixed; inset: 0; display: none; place-items: center; background: #000c; z-index: 20;
-    font-size: 16px; text-align: center;
-  }
+  .close { margin-top: 14px; width: 100%; height: 40px; }
+  #busy { position: fixed; inset: 0; display: none; place-items: center; background: #000c; z-index: 20; font-size: 16px; text-align: center; }
   #busy.open { display: grid; }
   .spinner { width: 48px; height: 48px; margin: 0 auto 12px; border-radius: 50%; border: 4px solid #333; border-top-color: var(--accent); animation: spin 0.6s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -145,40 +109,36 @@
 </head>
 <body>
   <header>
-    <div class="track">
-      <b id="title">Nenhum disco</b>
-      <small><span id="time">--:-- / --:--</span> · <span id="pitchVal">+0.0%</span> · <span id="rpmVal">0.0</span> rpm</small>
+    <div class="side a"><b><span class="tag">A</span><span id="titleA">—</span></b><small id="metaA">--:--</small></div>
+    <div class="center">
+      <button class="icon-btn a" data-load="A" aria-label="Disco no deck A">♪A</button>
+      <div class="seg" id="focus" aria-label="Zoom">
+        <button data-v="A">A</button><button data-v="AM">A+M</button><button data-v="ALL">Tudo</button><button data-v="M">M</button><button data-v="MB">M+B</button><button data-v="B">B</button>
+      </div>
+      <button class="icon-btn b" data-load="B" aria-label="Disco no deck B">♪B</button>
+      <button class="icon-btn" id="btnSettings" aria-label="Ajustes">⚙</button>
+      <button class="icon-btn" id="btnHelp" aria-label="Ajuda">?</button>
+      <button class="icon-btn" id="btnFull" aria-label="Tela cheia">⛶</button>
     </div>
-    <button class="icon-btn primary" id="btnLoad" aria-label="Carregar música">♪ Disco</button>
-    <button class="icon-btn" id="btnSettings" aria-label="Ajustes">⚙</button>
-    <button class="icon-btn" id="btnHelp" aria-label="Ajuda">?</button>
+    <div class="side b"><b><span id="titleB">—</span><span class="tag">B</span></b><small id="metaB">--:--</small></div>
   </header>
 
-  <main id="stage"><canvas id="deck" aria-label="Toca-discos"></canvas></main>
+  <main id="stage"><canvas id="deck" aria-label="Mesa de DJ: dois toca-discos e mixer"></canvas></main>
 
-  <footer>
-    <button class="pad" id="cut">CUT</button>
-    <div class="xfader-wrap">
-      <label><span>FADER</span><span>corta ▸</span></label>
-      <div class="xfader" id="xfader"><div class="zone"></div><div class="cap"></div></div>
-    </div>
-    <div class="vol"><span>VOL</span><input type="range" id="vol" min="0" max="1" step="0.01" value="0.9"></div>
-  </footer>
+  <div id="rotateHint">↻ Vire o celular para usar a mesa completa — ou use o zoom (A, M, B) aqui em cima.</div>
 
   <input type="file" id="file" accept="audio/*,video/mp4,.mp3,.m4a,.aac,.wav,.flac,.ogg,.opus" hidden>
 
   <div class="sheet" id="sheetLoad">
     <div class="card">
-      <h2>Colocar um disco</h2>
-      <button class="option" id="optFile"><span>📁</span><div>Música do celular<small>MP3, M4A, AAC, WAV, FLAC, OGG</small></div></button>
-      <button class="option" id="optDemo"><span>💿</span><div>Disco de batalha (demo)<small>Samples "ahh" para scratch + breakbeat 92 BPM</small></div></button>
+      <h2>Colocar disco no deck <span id="loadDeck">A</span></h2>
+      <button class="option" id="optFile"><span>📁</span><div>Música do celular<small>MP3, M4A, AAC, WAV, FLAC, OGG — o BPM é medido sozinho</small></div></button>
+      <button class="option" id="optDemo"><span>💿</span><div>Disco demo<small>A: batalha 92 BPM com "ahh" · B: groove 96 BPM</small></div></button>
       <div class="note">
         <b>Spotify e YouTube Music:</b> o áudio deles é protegido (DRM). Nenhum site ou app web consegue
-        pegar esse som para fazer scratch — nem este, nem qualquer outro. O que funciona aqui são arquivos
-        de áudio que estão no seu celular.
+        pegar esse som para fazer scratch. O que funciona aqui são arquivos de áudio do seu celular.
         <ul>
-          <li><b>Spotify de verdade com scratch no celular:</b> use o app <b>djay</b> (Algoriddim) ou o
-            <b>rekordbox</b> mobile com Spotify Premium — são integrações oficiais.</li>
+          <li><b>Spotify com scratch no celular:</b> apps <b>djay</b> ou <b>rekordbox</b> com Spotify Premium (integração oficial).</li>
           <li><b>YouTube Music:</b> não libera para nenhum app de DJ.</li>
         </ul>
       </div>
@@ -191,8 +151,10 @@
       <h2>Ajustes</h2>
       <div class="row"><label>Faixa do pitch</label>
         <div class="seg" id="segRange"><button data-v="8">±8%</button><button data-v="16">±16%</button><button data-v="50">±50%</button></div></div>
-      <div class="row"><label>Posição do deck</label>
-        <div class="seg" id="segOrient"><button data-v="auto">Auto</button><button data-v="normal">Normal</button><button data-v="battle">Battle</button></div></div>
+      <div class="row"><label>Cor dos toca-discos</label>
+        <div class="seg" id="segFinish"><button data-v="black">Preto</button><button data-v="silver">Prata</button></div></div>
+      <div class="row"><label>Curva do crossfader</label>
+        <div class="seg" id="segCurve"><button data-v="mix">Mix</button><button data-v="cut">Scratch</button></div></div>
       <div class="row"><label>Partida do motor <small id="startVal"></small></label><input type="range" id="startTime" min="0.15" max="3" step="0.05"></div>
       <div class="row"><label>Freio <small id="brakeVal"></small></label><input type="range" id="brakeTime" min="0.15" max="5" step="0.05"></div>
       <div class="row"><label>Chiado do vinil</label>
@@ -205,26 +167,28 @@
 
   <div class="sheet" id="sheetHelp">
     <div class="card">
-      <h2>Como tocar</h2>
+      <h2>Como usar a mesa</h2>
+      <h3>Toca-discos</h3>
       <ul>
-        <li><b>POWER</b> (botão redondo, canto): liga/desliga. Desligar com o disco girando faz o efeito
-          clássico de "power off" — o prato perde velocidade devagar.</li>
-        <li><b>START·STOP</b>: liga o motor (partida rápida) e freia eletronicamente.</li>
-        <li><b>33 / 45</b>: velocidade do prato.</li>
-        <li><b>Scratch</b>: encoste no disco e arraste em círculo. Segurar parado = silêncio, como no real.
-          Gire forte para trás e solte para um <i>backspin</i>.</li>
-        <li><b>Pitch</b>: arraste o fader. Igual ao MK2, <b>para cima é mais lento</b> (−) e para baixo é mais rápido (+).
-          Trava no centro (luz verde QUARTZ LOCK). Toque duas vezes para zerar.</li>
-        <li><b>Braço</b>: arraste a cápsula (cabeça do braço) para qualquer ponto do disco — é a "agulhada".
-          A alavanca de <b>CUE</b> levanta e abaixa a agulha.</li>
-        <li><b>CUT</b> e <b>FADER</b>: para cortes de scratch (chirps, transformers). O fader corta no final do curso, lado direito.</li>
-        <li>Celular em pé = posição <b>battle</b> (deck girado, braço em cima), como os DJs de scratch usam. Deitado = posição normal.</li>
+        <li><b>START·STOP</b> liga o motor e freia. <b>POWER</b> desligado faz o prato parar devagar.</li>
+        <li><b>Scratch:</b> encoste no disco e gire. Segurar parado = silêncio. Gire forte para trás e solte = backspin.</li>
+        <li><b>Pitch:</b> para cima = mais lento (−), para baixo = mais rápido (+). Trava no 0 (luz verde). Dois toques zeram.</li>
+        <li><b>Braço:</b> arraste a cápsula para soltar a agulha em qualquer ponto. <b>CUE</b> levanta/abaixa.</li>
+      </ul>
+      <h3>Mixer</h3>
+      <ul>
+        <li><b>Knobs</b> (TRIM, HI, MID, LOW, FILTER, LEVEL, MASTER): arraste para cima/baixo. Dois toques voltam ao padrão.</li>
+        <li><b>FILTER:</b> para a esquerda corta os agudos, para a direita corta os graves.</li>
+        <li><b>Faders</b> dos canais 1 (deck A) e 2 (deck B) e o <b>crossfader</b>. <b>CURVE</b> MIX = suave, CUT = corte rápido de scratch.</li>
+        <li><b>BEAT FX:</b> escolha o efeito, o canal (1, 2 ou MST), o tempo com <b>◀ BEAT ▶</b>, a intensidade no <b>LEVEL/DEPTH</b> e aperte <b>ON</b>.
+          O tempo segue o BPM da música. <b>TAP</b> 3× marca o BPM na mão; segure TAP para voltar ao automático.</li>
+        <li>Eco, delay, ping pong e reverb deixam o rastro soando quando você desliga — igual nos DJM.</li>
       </ul>
       <h3>Dicas</h3>
       <ul>
-        <li>No iPhone, se não sair som, tire do modo silencioso.</li>
-        <li>Adicione à tela inicial (Compartilhar → Adicionar à Tela de Início) para abrir em tela cheia.</li>
-        <li>Fone com fio tem menos atraso que Bluetooth — faz diferença no scratch.</li>
+        <li>Use o celular deitado. O zoom <b>A+M</b> / <b>M+B</b> deixa o disco e o mixer maiores.</li>
+        <li>Dá para usar dois dedos ao mesmo tempo: um no disco e outro no crossfader.</li>
+        <li>No iPhone, tire do modo silencioso. Fone com fio tem menos atraso que Bluetooth.</li>
       </ul>
       <button class="icon-btn close" data-close>Fechar</button>
     </div>

@@ -1,8 +1,9 @@
 // Cache simples para abrir offline depois da primeira visita.
-const CACHE = 'vinil-mk2-v1';
+const CACHE = 'vinil-mk2-v2';
 const FILES = [
   './', 'index.html', 'manifest.webmanifest',
-  'js/app.js', 'js/demo.js', 'js/deck-worklet.js',
+  'js/app.js', 'js/demo.js', 'js/deck-worklet.js', 'js/deck.js', 'js/mixer.js',
+  'js/fx.js', 'js/bpm.js', 'js/draw.js',
   'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png',
 ];
 

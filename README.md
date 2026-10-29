@@ -1,15 +1,16 @@
-# Vinil MK2
+# Mesa Vinil MK2
 
-Simulador de toca-discos estilo SL-1200 MK2 que roda no navegador do celular.
+Mesa de DJ no navegador do celular: dois toca-discos estilo SL-1200 MK2 lado a lado
+e um mixer de 2 canais estilo DJM no meio.
 
-- Scratch em tempo real (encoste e gire o disco; segurar parado = silêncio)
-- Pitch ±8 / ±16 / ±50 %, 33/45 RPM, trava central com luz QUARTZ LOCK
-- Motor com partida e freio ajustáveis, efeito "power off", backspin
-- Braço com agulhada (arraste a cápsula) e alavanca de CUE
-- Estroboscópio, chiado do vinil, sulco de travamento no fim do disco
-- CUT e fader de corte para chirps/transformers
-- Celular em pé = posição battle; deitado = posição normal
-- Instalável (PWA) e funciona offline
+**Toca-discos**: scratch em tempo real, pitch ±8/±16/±50 %, 33/45 RPM, partida e freio
+ajustáveis, power off, backspin, braço com agulhada, CUE, estroboscópio e chiado de vinil.
 
-Toca arquivos de áudio do aparelho (MP3, M4A, WAV, FLAC, OGG) e traz um disco demo.
-Spotify e YouTube Music usam DRM, então nenhum app web consegue fazer scratch com eles.
+**Mixer**: TRIM, EQ de 3 bandas (com kill), FILTER (passa-baixa/passa-alta com ressonância),
+faders de canal, crossfader com curva MIX/CUT, medidores e BEAT FX sincronizado ao BPM:
+Echo, Delay, Ping Pong, Reverb, Flanger, Phaser, Filter, Trans e Roll, com seleção de
+canal (1, 2, Master), BEAT ◀ ▶, LEVEL/DEPTH e TAP. O BPM de cada música é detectado sozinho.
+
+Use o celular deitado. Zoom A / A+M / M / M+B / B na barra de cima.
+Toca arquivos de áudio do aparelho e traz dois discos demo (92 e 96 BPM).
+Spotify e YouTube Music usam DRM, então nenhum app web consegue tocar o áudio deles aqui.
